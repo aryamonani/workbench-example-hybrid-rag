@@ -2,7 +2,7 @@ specVersion: v2
 specMinorVersion: 2
 meta:
   name: hybrid-rag
-  image: project-hybrid-rag
+  image: aryamonani/my-custom-container:latest
   description: A project to chat with your own data locally, in the cloud, or using
     a microservice
   labels: []
@@ -21,7 +21,7 @@ layout:
 environment:
   base:
     registry: ghcr.io
-    image: huggingface/text-generation-inference:2.3.0
+    image: aryamonani/my-custom-container:latest
     build_timestamp: "20231011102429"
     name: TGI
     supported_architectures:

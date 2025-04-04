@@ -22,7 +22,6 @@ environment:
   base:
     registry: ghcr.io
     image: huggingface/text-generation-inference:2.3.0
-    platform: linux/amd64
     build_timestamp: "20231011102429"
     name: TGI
     supported_architectures:

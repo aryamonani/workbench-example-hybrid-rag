@@ -4,19 +4,26 @@ set -x
 
 echo "=== Starting postBuild.bash ==="
 
-# Ensure the script is running as root.
-if [ "$(id -u)" -ne 0 ]; then
-  echo "Error: postBuild.bash must be run as root."
-  exit 1
+# Ensure conda is available; if not, install Miniconda.
+if ! command -v conda >/dev/null 2>&1; then
+    echo "Conda not found. Installing Miniconda..."
+    apt-get update
+    apt-get -y install wget bzip2
+    wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O /tmp/miniconda.sh
+    /bin/bash /tmp/miniconda.sh -b -p /opt/conda
+    rm /tmp/miniconda.sh
+    /opt/conda/bin/conda clean -tipsy
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 fi
 
+# Ensure conda is in PATH
+export PATH=/opt/conda/bin:$PATH
+
 echo "=== Creating API environment ==="
-# Install deps to run the API in a separate venv
 conda create --name api-env -y python=3.10 pip
 $HOME/.conda/envs/api-env/bin/pip install fastapi==0.109.2 uvicorn[standard]==0.27.0.post1 python-multipart==0.0.7 langchain==0.0.335 langchain-community==0.0.19 openai==1.55.3 httpx==0.27.2 unstructured[all-docs]==0.12.4 sentence-transformers==2.7.0 llama-index==0.9.44 dataclass-wizard==0.22.3 pymilvus==2.3.1 opencv-python==4.8.0.76 hf_transfer==0.1.5 text_generation==0.6.1 transformers==4.40.0 nltk==3.8.1
 
 echo "=== Creating UI environment ==="
-# Install deps to run the UI in a separate venv
 conda create --name ui-env -y python=3.10 pip
 $HOME/.conda/envs/ui-env/bin/pip install dataclass_wizard==0.22.2 gradio==4.15.0 jinja2==3.1.2 numpy==1.25.2 protobuf==3.20.3 PyYAML==6.0 uvicorn==0.22.0 torch==2.1.1 tiktoken==0.7.0 regex==2024.5.15 fastapi==0.112.2
 
@@ -28,23 +35,22 @@ curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/doc
 chmod a+r /etc/apt/keyrings/docker.asc
 
 echo "=== Adding Docker apt source ==="
-echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo \"$VERSION_CODENAME\") stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
 apt-get update
 apt-get -y install docker-ce-cli
 
-echo "=== Installing Python packages with conda pip ==="
+echo "=== Installing additional Python packages ==="
 /opt/conda/bin/pip install anyio==4.3.0 pymilvus==2.3.1 transformers==4.40.0
 
-echo "=== Creating directories ==="
+echo "=== Creating necessary directories ==="
 mkdir -p /mnt/milvus
 mkdir -p /data
 
-# Use environment variables or default values
+echo "=== Setting up user environment ==="
 NVWB_UID=${NVWB_UID:-1000}
 NVWB_GID=${NVWB_GID:-1000}
 NVWB_USERNAME=${NVWB_USERNAME:-workbench}
 
-echo "=== Creating group and user if not exists ==="
 # Create the group if it doesn't exist
 if ! getent group "$NVWB_USERNAME" >/dev/null 2>&1; then
     groupadd -g "$NVWB_GID" "$NVWB_USERNAME"

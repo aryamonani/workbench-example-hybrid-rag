@@ -2,9 +2,11 @@
 set -e
 set -x
 
+export DEBIAN_FRONTEND=noninteractive
+
 echo "=== Starting postBuild.bash ==="
 
-# Ensure conda is available; if not, install Miniconda.
+# Check if conda is available; if not, install Miniconda.
 if ! command -v conda >/dev/null 2>&1; then
     echo "Conda not found. Installing Miniconda..."
     apt-get update

@@ -4,13 +4,13 @@ set -x
 
 export DEBIAN_FRONTEND=noninteractive
 
-echo "=== Setting DNS nameserver to 8.8.8.8 ==="
-# Overwrite /etc/resolv.conf with a known, reliable nameserver.
-echo "nameserver 8.8.8.8" > /etc/resolv.conf
+# Removed DNS configuration because /etc/resolv.conf is read-only in this environment.
+# echo "=== Setting DNS nameserver to 8.8.8.8 ==="
+# echo "nameserver 8.8.8.8" > /etc/resolv.conf
 
 echo "=== Starting postBuild.bash ==="
 
-# Install Miniconda only if conda is not already available.
+# Check if conda is available; if not, install Miniconda.
 if ! command -v conda >/dev/null 2>&1; then
     echo "Conda not found. Installing Miniconda..."
     apt-get update
@@ -57,12 +57,12 @@ NVWB_UID=${NVWB_UID:-1000}
 NVWB_GID=${NVWB_GID:-1000}
 NVWB_USERNAME=${NVWB_USERNAME:-workbench}
 
-# Create the group if it doesn't exist
+# Create the group if it doesn't exist.
 if ! getent group "$NVWB_USERNAME" >/dev/null 2>&1; then
     groupadd -g "$NVWB_GID" "$NVWB_USERNAME"
 fi
 
-# Create the user if it doesn't exist
+# Create the user if it doesn't exist.
 if ! id -u "$NVWB_USERNAME" >/dev/null 2>&1; then
     useradd -m -u "$NVWB_UID" -g "$NVWB_GID" "$NVWB_USERNAME"
 fi

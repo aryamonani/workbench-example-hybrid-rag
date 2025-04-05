@@ -4,6 +4,10 @@ set -x
 
 export DEBIAN_FRONTEND=noninteractive
 
+echo "=== Setting DNS nameserver to 8.8.8.8 ==="
+# Overwrite /etc/resolv.conf with a known nameserver.
+echo "nameserver 8.8.8.8" > /etc/resolv.conf
+
 echo "=== Starting postBuild.bash ==="
 
 # Check if conda is available; if not, install Miniconda.

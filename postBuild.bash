@@ -5,12 +5,12 @@ set -x
 export DEBIAN_FRONTEND=noninteractive
 
 echo "=== Setting DNS nameserver to 8.8.8.8 ==="
-# Overwrite /etc/resolv.conf with a known nameserver.
+# Overwrite /etc/resolv.conf with a known, reliable nameserver.
 echo "nameserver 8.8.8.8" > /etc/resolv.conf
 
 echo "=== Starting postBuild.bash ==="
 
-# Check if conda is available; if not, install Miniconda.
+# Install Miniconda only if conda is not already available.
 if ! command -v conda >/dev/null 2>&1; then
     echo "Conda not found. Installing Miniconda..."
     apt-get update
@@ -22,7 +22,7 @@ if ! command -v conda >/dev/null 2>&1; then
     apt-get clean && rm -rf /var/lib/apt/lists/*
 fi
 
-# Ensure conda is in PATH
+# Ensure conda is in PATH.
 export PATH=/opt/conda/bin:$PATH
 
 echo "=== Creating API environment ==="

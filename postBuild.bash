@@ -1,5 +1,6 @@
 #!/bin/bash
 set -e
+set -x
 
 # Install deps to run the API in a seperate venv to isolate different components
 conda create --name api-env -y python=3.10 pip
@@ -11,7 +12,7 @@ $HOME/.conda/envs/ui-env/bin/pip install dataclass_wizard==0.22.2 gradio==4.15.0
 
 sudo -E apt-get update
 sudo -E apt-get -y install ca-certificates curl
-sudo -E install -m 0755 -d /etc/apt/keyrings
+sudo -E mkdir -p /etc/apt/keyrings
 sudo -E curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
 sudo -E chmod a+r /etc/apt/keyrings/docker.asc
 
@@ -26,8 +27,27 @@ sudo -E mkdir -p /data
 sudo -E chown workbench:workbench /mnt/milvus
 sudo -E chown workbench:workbench /data
 
+# Use environment variables or default values
+NVWB_UID=${NVWB_UID:-1000}
+NVWB_GID=${NVWB_GID:-1000}
+NVWB_USERNAME=${NVWB_USERNAME:-workbench}
+
+# Create the group if it doesn't exist
+if ! getent group "$NVWB_USERNAME" >/dev/null 2>&1; then
+    sudo -E groupadd -g "$NVWB_GID" "$NVWB_USERNAME"
+fi
+
+# Create the user if it doesn't exist
+if ! id -u "$NVWB_USERNAME" >/dev/null 2>&1; then
+    sudo -E useradd -m -u "$NVWB_UID" -g "$NVWB_GID" "$NVWB_USERNAME"
+fi
+
+# Change ownership of the directories using the dynamic values
+sudo -E chown "$NVWB_USERNAME":"$NVWB_USERNAME" /mnt/milvus
+sudo -E chown "$NVWB_USERNAME":"$NVWB_USERNAME" /data
+
 sudo -E curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | sudo -E bash
-sudo -E apt-get install git-lfs
+sudo -E apt-get -y install git-lfs
 
 cat <<EOM | sudo tee /etc/profile.d/docker-in-docker.sh > /dev/null
 if ! groups workbench | grep docker > /dev/null; then

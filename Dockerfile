@@ -9,20 +9,22 @@ ENV NVWB_UID=1000
 ENV NVWB_GID=1000
 ENV NVWB_USERNAME=workbench
 
-# Copy the postBuild.bash script into the image with proper ownership.
-# Ensure that the file postBuild.bash is in the same directory as this Dockerfile.
+# Create the target directory for build scripts
+RUN mkdir -p /opt/project/build
+
+# Copy the postBuild.bash script into the image with proper ownership
 COPY --chown=$NVWB_UID:$NVWB_GID postBuild.bash /opt/project/build/
 
-# Make sure the script is executable.
+# Make sure the script is executable
 RUN chmod +x /opt/project/build/postBuild.bash
 
-# Run the post-build script.
+# Run the post-build script
 RUN ["/bin/bash", "/opt/project/build/postBuild.bash"]
 
-# Set the default runtime user.
+# Set the default runtime user
 USER $NVWB_USERNAME
 
-# Add NVIDIA AI Workbench container labels.
+# Add NVIDIA AI Workbench container labels
 LABEL com.nvidia.workbench.build-timestamp="20231011102429" \
       com.nvidia.workbench.name="hybrid-rag-custom" \
       com.nvidia.workbench.cuda-version="11.8" \
@@ -35,5 +37,5 @@ LABEL com.nvidia.workbench.build-timestamp="20231011102429" \
       com.nvidia.workbench.schema-version="v2" \
       com.nvidia.workbench.platform="linux/amd64"
 
-# Expose the necessary ports.
+# Expose the necessary ports
 EXPOSE 8080 8888

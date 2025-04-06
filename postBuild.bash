@@ -87,7 +87,7 @@ chown "$NVWB_USERNAME":"$NVWB_GID" /mnt/milvus
 chown "$NVWB_USERNAME":"$NVWB_GID" /data
 
 echo "=== Installing git-lfs ==="
-curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | bash
+curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | sudo bash
 if [ -w /var/lib/apt/lists ]; then
     apt-get -o Dir::State::lock=/tmp/apt.lock -y install git-lfs
 else

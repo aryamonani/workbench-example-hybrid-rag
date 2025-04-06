@@ -4,13 +4,13 @@ set -x
 
 export DEBIAN_FRONTEND=noninteractive
 
-# Removed DNS configuration because /etc/resolv.conf is read-only in this environment.
-# echo "=== Setting DNS nameserver to 8.8.8.8 ==="
-# echo "nameserver 8.8.8.8" > /etc/resolv.conf
+echo "=== Removing apt lock files if any ==="
+rm -f /var/lib/apt/lists/lock || true
+rm -f /var/cache/apt/archives/lock || true
 
 echo "=== Starting postBuild.bash ==="
 
-# Check if conda is available; if not, install Miniconda.
+# Install Miniconda only if conda is not already available.
 if ! command -v conda >/dev/null 2>&1; then
     echo "Conda not found. Installing Miniconda..."
     apt-get update

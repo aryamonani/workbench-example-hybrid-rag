@@ -4,7 +4,7 @@ set -x
 
 export DEBIAN_FRONTEND=noninteractive
 
-echo "=== Removing apt lock files if any ==="
+echo "=== Removing any existing apt lock files (if possible) ==="
 rm -f /var/lib/apt/lists/lock || true
 rm -f /var/cache/apt/archives/lock || true
 
@@ -13,8 +13,8 @@ echo "=== Starting postBuild.bash ==="
 # Install Miniconda only if conda is not already available.
 if ! command -v conda >/dev/null 2>&1; then
     echo "Conda not found. Installing Miniconda..."
-    apt-get update
-    apt-get -y install wget bzip2
+    apt-get -o Dir::State::lock=/tmp/apt.lock update
+    apt-get -o Dir::State::lock=/tmp/apt.lock -y install wget bzip2
     wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O /tmp/miniconda.sh
     /bin/bash /tmp/miniconda.sh -b -p /opt/conda
     rm /tmp/miniconda.sh
@@ -34,16 +34,16 @@ conda create --name ui-env -y python=3.10 pip
 $HOME/.conda/envs/ui-env/bin/pip install dataclass_wizard==0.22.2 gradio==4.15.0 jinja2==3.1.2 numpy==1.25.2 protobuf==3.20.3 PyYAML==6.0 uvicorn==0.22.0 torch==2.1.1 tiktoken==0.7.0 regex==2024.5.15 fastapi==0.112.2
 
 echo "=== Updating apt and installing tools ==="
-apt-get update
-apt-get -y install ca-certificates curl wget bzip2
+apt-get -o Dir::State::lock=/tmp/apt.lock update
+apt-get -o Dir::State::lock=/tmp/apt.lock -y install ca-certificates curl wget bzip2
 mkdir -p /etc/apt/keyrings
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
 chmod a+r /etc/apt/keyrings/docker.asc
 
 echo "=== Adding Docker apt source ==="
 echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo \"$VERSION_CODENAME\") stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
-apt-get update
-apt-get -y install docker-ce-cli
+apt-get -o Dir::State::lock=/tmp/apt.lock update
+apt-get -o Dir::State::lock=/tmp/apt.lock -y install docker-ce-cli
 
 echo "=== Installing additional Python packages ==="
 /opt/conda/bin/pip install anyio==4.3.0 pymilvus==2.3.1 transformers==4.40.0
@@ -73,7 +73,7 @@ chown "$NVWB_USERNAME":"$NVWB_USERNAME" /data
 
 echo "=== Installing git-lfs ==="
 curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | bash
-apt-get -y install git-lfs
+apt-get -o Dir::State::lock=/tmp/apt.lock -y install git-lfs
 
 echo "=== Configuring docker-in-docker ==="
 cat <<EOM | tee /etc/profile.d/docker-in-docker.sh > /dev/null

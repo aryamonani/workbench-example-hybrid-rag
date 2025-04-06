@@ -9,27 +9,27 @@ sudo rm -f /var/cache/apt/archives/lock || true
 
 echo '=== Starting postBuild.bash ==='
 
-# Ensure conda is available
-if ! command -v conda >/dev/null 2>&1; then
-    echo "conda not found!"
-    exit 1
-fi
-
-# Prepend conda to PATH
-export PATH=/opt/conda/bin:$PATH
+# Load conda's environment script
+source /opt/conda/etc/profile.d/conda.sh
 
 echo '=== Creating API environment ==='
 conda create --name api-env -y python=3.10 pip
 
 echo '=== Installing API Python packages ==='
-# Activate the API environment and install required packages
-source $(conda info --base)/envs/api-env/bin/activate api-env
-pip install fastapi==0.109.2 'uvicorn[standard]==0.27.0.post1' python-multipart==0.0.7 langchain==0.0.335 langchain-community==0.0.19 openai==1.55.3 httpx==0.27.2 'unstructured[all-docs]==0.12.4' sentence-transformers==2.7.0 llama-index==0.9.44 dataclass-wizard==0.22.3 pymilvus==2.3.1 opencv-python==4.8.0.76 hf_transfer==0.1.5 text_generation==0.6.1 transformers==4.40.0 nltk==3.8.1
+conda run -n api-env pip install fastapi==0.109.2 'uvicorn[standard]==0.27.0.post1' \
+    python-multipart==0.0.7 langchain==0.0.335 langchain-community==0.0.19 \
+    openai==1.55.3 httpx==0.27.2 'unstructured[all-docs]==0.12.4' \
+    sentence-transformers==2.7.0 llama-index==0.9.44 dataclass-wizard==0.22.3 \
+    pymilvus==2.3.1 opencv-python==4.8.0.76 hf_transfer==0.1.5 text_generation==0.6.1 \
+    transformers==4.40.0 nltk==3.8.1
 
 echo '=== Creating UI environment ==='
 conda create --name ui-env -y python=3.10 pip
-source $(conda info --base)/envs/ui-env/bin/activate ui-env
-pip install dataclass_wizard==0.22.2 gradio==4.15.0 jinja2==3.1.2 numpy==1.25.2 protobuf==3.20.3 PyYAML==6.0 uvicorn==0.22.0 torch==2.1.1 tiktoken==0.7.0 regex==2024.5.15 fastapi==0.112.2
+
+echo '=== Installing UI Python packages ==='
+conda run -n ui-env pip install dataclass_wizard==0.22.2 gradio==4.15.0 jinja2==3.1.2 \
+    numpy==1.25.2 protobuf==3.20.3 PyYAML==6.0 uvicorn==0.22.0 torch==2.1.1 \
+    tiktoken==0.7.0 regex==2024.5.15 fastapi==0.112.2
 
 echo '=== Creating necessary directories ==='
 sudo mkdir -p /mnt/milvus
@@ -58,7 +58,6 @@ sudo chown $NVWB_USERNAME:$NVWB_GID /data
 echo '=== Installing git-lfs ==='
 curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | sudo bash
 
-# If the apt cache is writable, install git-lfs via apt; otherwise skip.
 if [ -w /var/lib/apt/lists ]; then
     sudo apt-get update && sudo apt-get install -y git-lfs
 else
@@ -66,7 +65,6 @@ else
 fi
 
 echo '=== Configuring docker-in-docker ==='
-# Write docker-in-docker configuration to /etc/profile.d
 echo 'export DOCKER_HOST=unix:///var/run/docker.sock' | sudo tee /etc/profile.d/docker-in-docker.sh
 
 echo '=== postBuild.bash completed successfully ==='

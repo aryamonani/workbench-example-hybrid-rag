@@ -63,18 +63,23 @@ mkdir -p /mnt/milvus
 mkdir -p /data
 
 echo "=== Setting up user environment ==="
+# Set defaults if not provided externally.
 NVWB_UID=${NVWB_UID:-1000}
 NVWB_GID=${NVWB_GID:-1000}
 NVWB_USERNAME=${NVWB_USERNAME:-workbench}
 
-# Create the group if it doesn't exist.
-if ! getent group "$NVWB_USERNAME" >/dev/null 2>&1; then
+# Check if a group with the target GID already exists.
+if getent group "$NVWB_GID" >/dev/null 2>&1; then
+    echo "A group with GID $NVWB_GID already exists; skipping groupadd."
+else
     groupadd -g "$NVWB_GID" "$NVWB_USERNAME"
 fi
 
-# Create the user if it doesn't exist.
+# Check if the user exists.
 if ! id -u "$NVWB_USERNAME" >/dev/null 2>&1; then
     useradd -m -u "$NVWB_UID" -g "$NVWB_GID" "$NVWB_USERNAME"
+else
+    echo "User '$NVWB_USERNAME' already exists; skipping useradd."
 fi
 
 echo "=== Changing ownership of directories ==="

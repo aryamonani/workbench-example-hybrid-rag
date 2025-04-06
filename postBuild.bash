@@ -63,19 +63,18 @@ mkdir -p /mnt/milvus
 mkdir -p /data
 
 echo "=== Setting up user environment ==="
-# Set defaults if not provided externally.
 NVWB_UID=${NVWB_UID:-1000}
 NVWB_GID=${NVWB_GID:-1000}
 NVWB_USERNAME=${NVWB_USERNAME:-workbench}
 
-# Check if a group with the target GID already exists.
+# Check if a group with the target GID exists; if not, create it.
 if getent group "$NVWB_GID" >/dev/null 2>&1; then
     echo "A group with GID $NVWB_GID already exists; skipping groupadd."
 else
     groupadd -g "$NVWB_GID" "$NVWB_USERNAME"
 fi
 
-# Check if the user exists.
+# Check if the user exists; if not, create it.
 if ! id -u "$NVWB_USERNAME" >/dev/null 2>&1; then
     useradd -m -u "$NVWB_UID" -g "$NVWB_GID" "$NVWB_USERNAME"
 else
@@ -83,8 +82,9 @@ else
 fi
 
 echo "=== Changing ownership of directories ==="
-chown "$NVWB_USERNAME":"$NVWB_USERNAME" /mnt/milvus
-chown "$NVWB_USERNAME":"$NVWB_USERNAME" /data
+# Use the numeric GID here (instead of the username) for the group ownership.
+chown "$NVWB_USERNAME":"$NVWB_GID" /mnt/milvus
+chown "$NVWB_USERNAME":"$NVWB_GID" /data
 
 echo "=== Installing git-lfs ==="
 curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | bash

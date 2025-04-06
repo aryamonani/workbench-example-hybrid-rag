@@ -15,7 +15,7 @@ RUN mkdir -p /opt/project/build
 # Copy the postBuild.bash script into the image with proper ownership
 COPY --chown=$NVWB_UID:$NVWB_GID postBuild.bash /opt/project/build/
 
-# Make sure the script is executable
+# Ensure the postBuild script is executable
 RUN chmod +x /opt/project/build/postBuild.bash
 
 # Run the post-build script

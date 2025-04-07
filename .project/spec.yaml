@@ -102,10 +102,8 @@ execution:
       requested: 1
     sharedMemoryMB: 4096
   secrets:
-  - variable: NVCF_RUN_KEY
-    description: NVCF Run Key for Cloud Inference
-  - variable: llama_4_key
-    description: llama_4
+  - variable: NGC_CLI_API_KEY
+    description: NGC API Key for NIM authentication
   mounts:
   - type: project
     target: /project/

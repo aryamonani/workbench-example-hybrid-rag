@@ -99,8 +99,8 @@ execution:
         grep -v 'Currently'
   resources:
     gpu:
-      requested: 1
-    sharedMemoryMB: 4096
+      requested: 8
+    sharedMemoryMB: 7000
   secrets:
   - variable: NVCF_RUN_KEY
     description: NVCF Run Key for Cloud Inference

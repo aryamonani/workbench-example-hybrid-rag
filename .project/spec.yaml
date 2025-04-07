@@ -117,3 +117,11 @@ execution:
     target: /mnt/milvus/
     description: Volume for storing the milvus database
     options: ""
+  - type: host
+    target: /var/host-run/
+    description: Docker socket Host Mount
+    options: ""
+  - type: host
+    target: /mnt/host-home/
+    description: Host mount for LOCAL_NIM_HOME
+    options: ""

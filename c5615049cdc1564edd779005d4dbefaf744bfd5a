@@ -1,0 +1,1 @@
+{"schema":"v1","records":[{"type":"PROJECT","operation":"CREATED","data":[{"data":"Created mount '/var/host-run/'","mime":"text/plain"}],"important":null},{"type":"PROJECT","operation":"CREATED","data":[{"data":"Created mount '/mnt/host-home/'","mime":"text/plain"}],"important":null}]}

@@ -99,7 +99,7 @@ execution:
         grep -v 'Currently'
   resources:
     gpu:
-      requested: 8
+      requested: 1
     sharedMemoryMB: 4096
   secrets:
   - variable: NVCF_RUN_KEY
